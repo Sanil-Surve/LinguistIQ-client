@@ -35,7 +35,7 @@ function Navbar({ user, setUser }) {
             <img
               src={user.photoURL || "https://via.placeholder.com/40"}
               alt="User Avatar"
-              className="w-7 h-7 rounded-full"
+              className="w-8 h-8 rounded-full"
             />
             <button
               onClick={handleSignOut}

@@ -40,13 +40,6 @@ function App() {
         >
           Generate Lesson
         </button>
-        <button
-          onClick={handleGenerateQuizzes}
-          className="bg-green-500 text-white p-2 rounded ml-14"
-          disabled={!lesson}
-        >
-          Generate Quizzes
-        </button>
 
         {lesson && (
           <div className="mb-4">
@@ -54,6 +47,14 @@ function App() {
             <p>{lesson}</p>
           </div>
         )}
+        
+        <button
+          onClick={handleGenerateQuizzes}
+          className="bg-green-500 text-white p-2 rounded"
+          disabled={!lesson}
+        >
+          Generate Quizzes
+        </button>
 
         {quizzes && (
           <div className="mt-4">
