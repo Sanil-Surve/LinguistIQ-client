@@ -4,7 +4,7 @@ import axios from 'axios';
 export const generateLesson = createAsyncThunk(
   'lesson/generateLesson',
   async (userInput) => {
-    const response = await axios.post('https://linguistiq-backend.onrender.com/api/generateLesson', { userInput });
+    const response = await axios.post(`https://linguistiq-backend.onrender.com/api/generateLesson`, { userInput });
     return response.data.lesson;
   }
 );
