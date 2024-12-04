@@ -38,7 +38,7 @@ function App() {
       {lesson && (
         <div className="mb-4">
           <h2 className="text-2xl font-bold">Topic</h2>
-          <pre>{lesson}</pre>
+          <p>{lesson}</p>
         </div>
       )}
 
