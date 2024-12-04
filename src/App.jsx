@@ -42,7 +42,7 @@ function App() {
         </button>
         <button
           onClick={handleGenerateQuizzes}
-          className="bg-green-500 text-white p-2 rounded ml-16"
+          className="bg-green-500 text-white p-2 rounded ml-14"
           disabled={!lesson}
         >
           Generate Quizzes
