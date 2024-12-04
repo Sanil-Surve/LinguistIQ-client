@@ -31,12 +31,12 @@ function Navbar({ user, setUser }) {
         {/* User Authentication */}
         {user ? (
           <div className="flex items-center space-x-4">
-            <span className="text-base">Hello, {user.displayName}!</span>
-            {/* <img
+            <span className="text-base">Hi, {user.displayName}!</span>
+            <img
               src={user.photoURL || "https://via.placeholder.com/40"}
               alt="User Avatar"
-              className="w-8 h-8 rounded-full"
-            /> */}
+              className="w-7 h-7 rounded-full"
+            />
             <button
               onClick={handleSignOut}
               className="bg-red-500 hover:bg-red-600 text-white py-1 px-4 rounded"

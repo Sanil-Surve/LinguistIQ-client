@@ -20,7 +20,7 @@ function App() {
     dispatch(generateQuizzes(lesson));
   };
 
-  return (
+ return (
     <div>
       {/* Add Navbar and pass the user */}
       <Navbar user={user} setUser={setUser} />
@@ -40,6 +40,13 @@ function App() {
         >
           Generate Lesson
         </button>
+        <button
+          onClick={handleGenerateQuizzes}
+          className="bg-green-500 text-white p-2 rounded ml-16"
+          disabled={!lesson}
+        >
+          Generate Quizzes
+        </button>
 
         {lesson && (
           <div className="mb-4">
@@ -47,14 +54,6 @@ function App() {
             <p>{lesson}</p>
           </div>
         )}
-
-        <button
-          onClick={handleGenerateQuizzes}
-          className="bg-green-500 text-white p-2 rounded"
-          disabled={!lesson}
-        >
-          Generate Quizzes
-        </button>
 
         {quizzes && (
           <div className="mt-4">
