@@ -26,7 +26,7 @@ function App() {
         className="border p-2 w-full mb-4"
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        placeholder="Enter a topic or language level"
+        placeholder="Enter a topic"
       />
       <button
         onClick={handleGenerateLesson}
