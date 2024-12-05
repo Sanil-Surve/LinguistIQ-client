@@ -4,7 +4,7 @@ import axios from 'axios';
 export const generateQuizzes = createAsyncThunk(
   'quiz/generateQuizzes',
   async (lessonContent) => {
-    const response = await axios.post('https://linguistiq-backend.onrender.com/api/generateQuizzes', { lessonContent });
+    const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/generateQuizzes`, { lessonContent });
     return response.data.quizzes;
   }
 );
