@@ -34,8 +34,8 @@ function Navbar() {
         <h1 className="text-lg font-bold">LinguistIQ</h1>
 
         {user ? (
-          <div className="flex items-center space-x-4">
-            <span className="text-base">Hi, {user.displayName}!</span>
+          <div className="flex items-center space-x-3">
+            <span className="text-base">Hi,{user.displayName}!</span>
             <img
               src={user.photoURL || "https://via.placeholder.com/40"}
               alt="User Avatar"

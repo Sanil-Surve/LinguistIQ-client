@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { generateLesson } from "./lessonSlice";
@@ -66,9 +65,17 @@ function App() {
           )}
         </div>
       ) : (
-        <div className="p-8 text-center">
-          <h1 className="text-3xl font-bold mb-4">Welcome to LinguistIQ</h1>
-          <p className="text-lg">Please sign in to access the full features of the app.</p>
+        // <div className="p-8 text-center">
+        //   <h1 className="text-3xl font-bold mb-4">Welcome to LinguistIQ</h1>
+        //   <p className="text-lg">Please sign in to access the full features of the app.</p>
+        // </div>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="p-8 text-center">
+            <h1 className="text-3xl font-bold mb-4">Welcome to LinguistIQ</h1>
+            <p className="text-lg">
+              Please sign in to access the full features of the app.
+            </p>
+          </div>
         </div>
       )}
     </div>
