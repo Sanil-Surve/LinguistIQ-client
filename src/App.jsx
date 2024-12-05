@@ -8,8 +8,7 @@ function App() {
   const dispatch = useDispatch();
   const lesson = useSelector((state) => state.lesson.lesson);
   const quizzes = useSelector((state) => state.quiz.quizzes);
-  const user = useSelector((state) => state.auth.user); // Get user authentication state from Redux
-
+  const user = useSelector((state) => state.auth.user); 
   const [input, setInput] = useState("");
 
   const handleGenerateLesson = () => {
@@ -65,10 +64,6 @@ function App() {
           )}
         </div>
       ) : (
-        // <div className="p-8 text-center">
-        //   <h1 className="text-3xl font-bold mb-4">Welcome to LinguistIQ</h1>
-        //   <p className="text-lg">Please sign in to access the full features of the app.</p>
-        // </div>
         <div className="flex items-center justify-center min-h-screen">
           <div className="p-8 text-center">
             <h1 className="text-3xl font-bold mb-4">Welcome to LinguistIQ</h1>

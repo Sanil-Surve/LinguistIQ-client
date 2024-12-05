@@ -29,7 +29,7 @@ function Navbar() {
   };
 
   return (
-    <nav className="bg-blue-600 text-white shadow-md">
+    <nav className="bg-[rgb(50,96,174)] text-white shadow-md">
       <div className="container mx-auto px-4 py-2 flex justify-between items-center">
         <h1 className="text-lg font-bold">LinguistIQ</h1>
 
@@ -53,7 +53,7 @@ function Navbar() {
             onClick={handleSignIn}
             className="bg-blue-500 hover:bg-blue-800 text-white py-1 px-4 rounded"
           >
-            Sign In
+            Sign Up
           </button>
         )}
       </div>
