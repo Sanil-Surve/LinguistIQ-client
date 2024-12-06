@@ -25,7 +25,7 @@ function App() {
 
       {/* Conditional rendering based on user authentication */}
       {user ? (
-        <div className="p-4 sm:p-8 max-w-7xl mx-auto">
+        <div className="p-4 sm:p-8 max-w-6xl mx-auto">
           <h1 className="text-2xl sm:text-3xl font-bold mb-4 text-center">
             LinguistIQ
           </h1>
