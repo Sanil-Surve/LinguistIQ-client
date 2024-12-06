@@ -37,7 +37,7 @@ function Navbar() {
           <div className="flex items-center space-x-3">
             <span className="text-base">Hi,{user.displayName}!</span>
             <img
-              src={user.photoURL || "https://via.placeholder.com/40"}
+              src={user.photoURL || "https://e7.pngegg.com/pngimages/342/260/png-clipart-computer-icons-blog-people-shadow-silhouette-tomcat-thumbnail.png"}
               alt="User Avatar"
               className="w-8 h-8 rounded-full"
             />
