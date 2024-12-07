@@ -1,7 +1,7 @@
 
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setUser, clearUser } from "./authSlice";
+import { setUser, clearUser } from "../app/slices/authSlice";
 import { auth, provider } from "./firebase";
 
 function Navbar() {

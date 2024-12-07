@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { generateLesson } from "./lessonSlice";
-import { generateQuizzes } from "./quizSlice";
+import { generateLesson } from "./app/slices/lessonSlice";
+import { generateQuizzes } from "./app/slices/quizSlice";
 import mainLogo from "./assets/logo.jpg";
-import Navbar from "./Navbar";
+import Navbar from "./components/Navbar";
 
 function App() {
   const dispatch = useDispatch();
@@ -99,7 +99,7 @@ function App() {
             <img
               src={mainLogo} // Replace this with the actual path to your logo file
               alt="LinguistIQ Logo"
-              className="mx-auto mb-4 w-24 h-auto md:w-32 lg:w-40 rounded" // Responsive sizing
+              className="mx-auto mb-4 w-30 h-auto md:w-32 lg:w-40 rounded" // Responsive sizing
             />
             <h1 className="text-2xl md:text-3xl font-bold mb-4">
               Welcome to LinguistIQ
