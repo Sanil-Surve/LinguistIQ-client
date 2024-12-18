@@ -1,5 +1,5 @@
 import React from "react";
-import mainLogo from "../assets/logo.jpg";
+import mainLogo from "../assets/software-developer.jpg";
 
 const Unauthorized = () => {
   return (
