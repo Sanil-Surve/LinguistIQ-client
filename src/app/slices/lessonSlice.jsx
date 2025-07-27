@@ -36,7 +36,8 @@ export const generateLesson = createAsyncThunk(
   async (userInput, { rejectWithValue, dispatch }) => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/generateLesson`,
+        // `${import.meta.env.VITE_BACKEND_URL}/api/generateLesson`,
+        `http://31.97.202.251:8081/api/generateLesson`,
         {
           method: "POST",
           headers: {
