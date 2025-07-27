@@ -37,7 +37,7 @@ export const generateLesson = createAsyncThunk(
     try {
       const response = await fetch(
         // `${import.meta.env.VITE_BACKEND_URL}/api/generateLesson`,
-        `http://31.97.202.251:8081/api/generateLesson`,
+        `https://linguistiq.shop/api/generateLesson`,
         {
           method: "POST",
           headers: {

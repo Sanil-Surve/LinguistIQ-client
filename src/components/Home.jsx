@@ -313,12 +313,14 @@ const Home = () => {
 
   // Format lesson content with markdown support
   const formatLessonContent = (content) => {
-    if (!content) return "";
+    if (!content || typeof content !== "string") return "";
     return content
       .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
       .replace(/\*(.*?)\*/g, "<em>$1</em>")
       .replace(/\n\n/g, "</p><p>")
-      .replace(/\n/g, "<br>");
+      .replace(/\n/g, "<br>")
+      .replace(/^/, "<p>")
+      .replace(/$/, content.endsWith("</p>") ? "" : "</p>");
   };
 
   // Format quiz content with proper line breaks
