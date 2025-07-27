@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from "react";
+import { Suspense, lazy } from "react";
 import { useSelector } from "react-redux";
 import Navbar from "./components/Navbar";
 
@@ -31,5 +31,5 @@ const loaderStyle = {
   justifyContent: "center",
   alignItems: "center",
   height: "100vh", // Full height of the viewport
-  backgroundColor: "#f9f9f9", 
+  backgroundColor: "#f9f9f9",
 };
