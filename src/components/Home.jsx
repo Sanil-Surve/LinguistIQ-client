@@ -73,7 +73,9 @@ const Home = () => {
       .replace(/\n\n/g, "</p><p>")
       .replace(/\n/g, "<br>")
       .replace(/^/, "<p>")
-      .replace(/$/, content.endsWith("</p>") ? "" : "</p>");
+      .replace(/$/, content.endsWith("</p>") ? "" : "</p>")
+      .replace(/undefined/g, "")
+      .trim();
   };
 
   // Format quiz content with proper line breaks
@@ -81,7 +83,7 @@ const Home = () => {
     if (!content) return "";
     return content.split("\n").map((line, i) => (
       <span key={i}>
-        {line}
+        {line.replace(/undefined/g, "").trim()}
         <br />
       </span>
     ));

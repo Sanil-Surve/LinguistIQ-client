@@ -95,7 +95,7 @@ const lessonSlice = createSlice({
   },
   reducers: {
     updateStreamingContent: (state, action) => {
-      state.lesson = action.payload;
+      state.lesson = action.payload || "";
       state.status = "streaming";
     },
     resetLesson: (state) => {

@@ -95,7 +95,7 @@ const quizSlice = createSlice({
   },
   reducers: {
     updateStreamingQuizzes: (state, action) => {
-      state.quizzes = action.payload;
+      state.quizzes = action.payload || "";
       state.status = "streaming";
     },
     resetQuizzes: (state) => {
