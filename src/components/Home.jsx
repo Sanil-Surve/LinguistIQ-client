@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Box,
@@ -32,6 +32,8 @@ const Home = () => {
   const [input, setInput] = useState("");
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const lessonRef = useRef(null);
+  const quizRef = useRef(null);
 
   // Lesson state
   const lesson = useSelector((state) => state.lesson.lesson);
@@ -42,6 +44,18 @@ const Home = () => {
   const quizzes = useSelector((state) => state.quiz.quizzes);
   const quizStatus = useSelector((state) => state.quiz.status);
   const quizError = useSelector((state) => state.quiz.error);
+
+  useEffect(() => {
+    if (lessonStatus === "streaming" && lessonRef.current) {
+      lessonRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+    }
+  }, [lessonStatus, lesson]);
+
+  useEffect(() => {
+    if (quizStatus === "streaming" && quizRef.current) {
+      quizRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+    }
+  }, [quizStatus, quizzes]);
 
   const handleGenerateLesson = () => {
     if (input.trim()) {
@@ -225,7 +239,6 @@ const Home = () => {
                   Generated Lesson
                 </Typography>
               </Stack>
-
               <Paper
                 variant="outlined"
                 sx={{
@@ -247,6 +260,7 @@ const Home = () => {
                   dangerouslySetInnerHTML={{
                     __html: formatLessonContent(lesson),
                   }}
+                  ref={lessonRef}
                 />
                 {lessonStatus === "streaming" && (
                   <Stack direction="row" alignItems="center" spacing={1} mt={2}>
@@ -330,37 +344,44 @@ const Home = () => {
                 </Typography>
               </Stack>
 
-              <Paper
-                variant="outlined"
-                sx={{
-                  p: { xs: 2, sm: 3 },
-                  background:
-                    "linear-gradient(45deg, #e8f5e8 30%, #f3e5f5 90%)",
-                  borderLeft: 4,
-                  borderLeftColor: "success.main",
-                  borderRadius: 1,
-                }}
-              >
-                <Box
+              <Box ref={quizRef}>
+                <Paper
+                  variant="outlined"
                   sx={{
-                    color: "text.primary",
-                    lineHeight: 1.7,
+                    p: { xs: 2, sm: 3 },
+                    background:
+                      "linear-gradient(45deg, #e8f5e8 30%, #f3e5f5 90%)",
+                    borderLeft: 4,
+                    borderLeftColor: "success.main",
+                    borderRadius: 1,
                   }}
                 >
-                  {formatQuizContent(quizzes)}
-                </Box>
-                {quizStatus === "streaming" && (
-                  <Stack direction="row" alignItems="center" spacing={1} mt={2}>
-                    <CircularProgress size={16} color="success" />
-                    <Chip
-                      label="AI is generating..."
-                      size="small"
-                      color="success"
-                      variant="outlined"
-                    />
-                  </Stack>
-                )}
-              </Paper>
+                  <Box
+                    sx={{
+                      color: "text.primary",
+                      lineHeight: 1.7,
+                    }}
+                  >
+                    {formatQuizContent(quizzes)}
+                  </Box>
+                  {quizStatus === "streaming" && (
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      spacing={1}
+                      mt={2}
+                    >
+                      <CircularProgress size={16} color="success" />
+                      <Chip
+                        label="AI is generating..."
+                        size="small"
+                        color="success"
+                        variant="outlined"
+                      />
+                    </Stack>
+                  )}
+                </Paper>
+              </Box>
             </CardContent>
           </Card>
         )}

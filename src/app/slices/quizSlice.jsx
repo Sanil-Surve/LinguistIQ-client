@@ -79,6 +79,7 @@ export const generateQuizzes = createAsyncThunk(
         }
       }
 
+      dispatch(setQuizStatus("success"));
       return quizContent;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -103,6 +104,9 @@ const quizSlice = createSlice({
       state.status = null;
       state.error = null;
     },
+    setQuizStatus: (state, action) => {
+      state.status = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -121,5 +125,6 @@ const quizSlice = createSlice({
   },
 });
 
-export const { updateStreamingQuizzes, resetQuizzes } = quizSlice.actions;
+export const { updateStreamingQuizzes, resetQuizzes, setQuizStatus } =
+  quizSlice.actions;
 export default quizSlice.reducer;

@@ -1,34 +1,3 @@
-// import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-// import axios from 'axios';
-
-// export const generateLesson = createAsyncThunk(
-//   'lesson/generateLesson',
-//   async (userInput) => {
-//     const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/generateLesson`, { userInput });
-//     return response.data.lesson;
-//   }
-// );
-
-// const lessonSlice = createSlice({
-//   name: 'lesson',
-//   initialState: { lesson: '', status: null },
-//   extraReducers: (builder) => {
-//     builder
-//       .addCase(generateLesson.pending, (state) => {
-//         state.status = 'loading';
-//       })
-//       .addCase(generateLesson.fulfilled, (state, action) => {
-//         state.lesson = action.payload;
-//         state.status = 'success';
-//       })
-//       .addCase(generateLesson.rejected, (state) => {
-//         state.status = 'failed';
-//       });
-//   },
-// });
-
-// export default lessonSlice.reducer;
-
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 export const generateLesson = createAsyncThunk(
@@ -70,7 +39,6 @@ export const generateLesson = createAsyncThunk(
             try {
               const parsed = JSON.parse(data);
               lessonContent += parsed.content;
-              // Dispatch an action to update the streaming content
               dispatch(updateStreamingContent(lessonContent));
             } catch (err) {
               console.error("Error parsing SSE data:", err);
@@ -78,6 +46,8 @@ export const generateLesson = createAsyncThunk(
           }
         }
       }
+
+      dispatch(setLessonStatus("success"));
 
       return lessonContent;
     } catch (error) {
@@ -103,6 +73,9 @@ const lessonSlice = createSlice({
       state.status = null;
       state.error = null;
     },
+    setLessonStatus: (state, action) => {
+      state.status = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -121,5 +94,6 @@ const lessonSlice = createSlice({
   },
 });
 
-export const { updateStreamingContent, resetLesson } = lessonSlice.actions;
+export const { updateStreamingContent, resetLesson, setLessonStatus } =
+  lessonSlice.actions;
 export default lessonSlice.reducer;
