@@ -1,4 +1,4 @@
-import mainLogo from "../assets/software-developer.jpg";
+import mainLogo from "../assets/education.gif";
 
 const Unauthorized = () => {
   return (
