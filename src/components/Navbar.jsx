@@ -1,3 +1,16 @@
+import * as React from "react";
+import AppBar from "@mui/material/AppBar";
+import Box from "@mui/material/Box";
+import Toolbar from "@mui/material/Toolbar";
+import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
+import Menu from "@mui/material/Menu";
+// import MenuIcon from "@mui/icons-material/Menu";
+import Container from "@mui/material/Container";
+import Avatar from "@mui/material/Avatar";
+// import Button from '@mui/material/Button';
+import Tooltip from "@mui/material/Tooltip";
+import MenuItem from "@mui/material/MenuItem";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser, clearUser } from "../app/slices/authSlice";
 import { auth, provider } from "./firebase";
@@ -6,60 +19,128 @@ function Navbar() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
 
+  // const [anchorElNav, setAnchorElNav] = React.useState(null);
+  const [anchorElUser, setAnchorElUser] = React.useState(null);
+
+  // const handleOpenNavMenu = (event) => {
+  //   setAnchorElNav(event.currentTarget);
+  // };
+  const handleOpenUserMenu = (event) => {
+    setAnchorElUser(event.currentTarget);
+  };
+
+  // const handleCloseNavMenu = () => {
+  //   setAnchorElNav(null);
+  // };
+
+  const handleCloseUserMenu = () => {
+    setAnchorElUser(null);
+  };
+
   const handleSignIn = () => {
     auth
       .signInWithPopup(provider)
       .then((result) => {
-        dispatch(setUser(result.user)); // Dispatch action to set user in Redux
+        dispatch(setUser(result.user));
         console.log("User signed in:", result.user);
       })
       .catch((error) => alert(error.message));
+    handleCloseUserMenu();
   };
 
   const handleSignOut = () => {
     auth
       .signOut()
       .then(() => {
-        dispatch(clearUser()); // Dispatch action to clear user in Redux
+        dispatch(clearUser());
         console.log("User signed out");
       })
       .catch((error) => alert(error.message));
+    handleCloseUserMenu();
   };
 
-  return (
-    <nav className="bg-[rgb(50,96,174)] text-white shadow-md">
-      <div className="container mx-auto px-4 py-2 flex justify-between items-center">
-        <h1 className="text-lg font-bold">LinguistIQ</h1>
+  const settings = user ? ["Logout"] : ["Sign Up"];
 
-        {user ? (
-          <div className="flex items-center space-x-3">
-            <span className="text-base">Hi,{user.displayName}!</span>
-            <img
-              src={
-                user.photoURL ||
-                "https://e7.pngegg.com/pngimages/342/260/png-clipart-computer-icons-blog-people-shadow-silhouette-tomcat-thumbnail.png"
-              }
-              alt="User Avatar"
-              className="w-8 h-8 rounded-full"
-            />
-            <button
-              onClick={handleSignOut}
-              className="bg-red-500 hover:bg-red-600 text-white py-1 px-4 rounded"
-            >
-              Sign Out
-            </button>
-          </div>
-        ) : (
-          <button
-            onClick={handleSignIn}
-            className="bg-blue-500 hover:bg-blue-800 text-white py-1 px-4 rounded"
+  return (
+    <AppBar position="static" sx={{ bgcolor: "rgb(50,96,174)" }}>
+      <Container maxWidth="xl">
+        <Toolbar disableGutters>
+          <Typography
+            variant="h6"
+            noWrap
+            component="div"
+            sx={{
+              mr: 2,
+              display: { xs: "none", md: "flex" },
+              fontWeight: "bold",
+            }}
           >
-            Sign Up
-          </button>
-        )}
-      </div>
-    </nav>
+            LinguistIQ
+          </Typography>
+
+          <Typography
+            variant="h6"
+            noWrap
+            component="div"
+            sx={{
+              flexGrow: 1,
+              display: { xs: "flex", md: "none" },
+              fontWeight: "bold",
+            }}
+          >
+            LinguistIQ
+          </Typography>
+
+          <Box sx={{ flexGrow: 0, ml: "auto" }}>
+            <Box sx={{ flexGrow: 0 }}>
+              {user && (
+                <Typography sx={{ display: "inline", mr: 1 }}>
+                  Hi, {user.displayName}!
+                </Typography>
+              )}
+              <Tooltip title="Open settings">
+                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                  <Avatar
+                    alt={user ? user.displayName : ""}
+                    src={
+                      (user && user?.photoURL) ||
+                      "https://e7.pngegg.com/pngimages/342/260/png-clipart-computer-icons-blog-people-shadow-silhouette-tomcat-thumbnail.png"
+                    }
+                  />
+                </IconButton>
+              </Tooltip>
+              <Menu
+                sx={{ mt: "45px" }}
+                id="menu-appbar-user"
+                anchorEl={anchorElUser}
+                anchorOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                open={Boolean(anchorElUser)}
+                onClose={handleCloseUserMenu}
+              >
+                {settings.map((setting) => (
+                  <MenuItem
+                    key={setting}
+                    onClick={
+                      setting === "Sign Up" ? handleSignIn : handleSignOut
+                    }
+                  >
+                    <Typography textAlign="center">{setting}</Typography>
+                  </MenuItem>
+                ))}
+              </Menu>
+            </Box>
+          </Box>
+        </Toolbar>
+      </Container>
+    </AppBar>
   );
 }
-
 export default Navbar;
