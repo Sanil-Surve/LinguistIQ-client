@@ -1,4 +1,3 @@
-import React from "react";
 import mainLogo from "../assets/software-developer.jpg";
 
 const Unauthorized = () => {
@@ -9,7 +8,7 @@ const Unauthorized = () => {
         <img
           src={mainLogo} // Replace this with the actual path to your logo file
           alt="LinguistIQ Logo"
-          className="mx-auto mb-4 w-30 h-auto md:w-32 lg:w-40 rounded" // Responsive sizing
+          className="mx-auto mb-4 w-30 h-auto md:w-32 lg:w-80 rounded" // Responsive sizing
         />
         <h1 className="text-2xl md:text-3xl font-bold mb-4">
           Welcome to LinguistIQ
