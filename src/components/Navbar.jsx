@@ -1,3 +1,4 @@
+import defaultProfile from "../assets/profile.png";
 import * as React from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -102,10 +103,7 @@ function Navbar() {
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                   <Avatar
                     alt={user ? user.displayName : ""}
-                    src={
-                      (user && user?.photoURL) ||
-                      "https://e7.pngegg.com/pngimages/342/260/png-clipart-computer-icons-blog-people-shadow-silhouette-tomcat-thumbnail.png"
-                    }
+                    src={user?.photoURL || defaultProfile}
                   />
                 </IconButton>
               </Tooltip>
