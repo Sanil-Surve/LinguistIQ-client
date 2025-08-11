@@ -5,8 +5,7 @@ export const generateLesson = createAsyncThunk(
   async (userInput, { rejectWithValue, dispatch }) => {
     try {
       const response = await fetch(
-        // `${import.meta.env.VITE_BACKEND_URL}/api/generateLesson`,
-        `https://linguistiq.shop/api/generateLesson`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/generateLesson`,
         {
           method: "POST",
           headers: {

@@ -1,34 +1,3 @@
-// import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-// import axios from 'axios';
-
-// export const generateQuizzes = createAsyncThunk(
-//   'quiz/generateQuizzes',
-//   async (lessonContent) => {
-//     const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/generateQuizzes`, { lessonContent });
-//     return response.data.quizzes;
-//   }
-// );
-
-// const quizSlice = createSlice({
-//   name: 'quiz',
-//   initialState: { quizzes: '', status: null },
-//   extraReducers: (builder) => {
-//     builder
-//       .addCase(generateQuizzes.pending, (state) => {
-//         state.status = 'loading';
-//       })
-//       .addCase(generateQuizzes.fulfilled, (state, action) => {
-//         state.quizzes = action.payload;
-//         state.status = 'success';
-//       })
-//       .addCase(generateQuizzes.rejected, (state) => {
-//         state.status = 'failed';
-//       });
-//   },
-// });
-
-// export default quizSlice.reducer;
-
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 export const generateQuizzes = createAsyncThunk(
@@ -36,8 +5,7 @@ export const generateQuizzes = createAsyncThunk(
   async (lessonContent, { rejectWithValue, dispatch }) => {
     try {
       const response = await fetch(
-        // `${import.meta.env.VITE_BACKEND_URL}/api/generateQuizzes`,
-        `https://linguistiq.shop/api/generateQuizzes`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/generateQuizzes`,
         {
           method: "POST",
           headers: {
