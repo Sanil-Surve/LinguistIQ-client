@@ -102,6 +102,7 @@ function Navbar() {
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                   <Avatar
                     alt={user ? user.displayName : ""}
+                    style={{ marginTop: 6 }}
                     src={
                       (user && user?.photoURL) ||
                       "https://e7.pngegg.com/pngimages/342/260/png-clipart-computer-icons-blog-people-shadow-silhouette-tomcat-thumbnail.png"
