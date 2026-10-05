@@ -4,6 +4,12 @@ export const generateQuizzes = createAsyncThunk(
   "quiz/generateQuizzes",
   async (lessonContent, { rejectWithValue, dispatch }) => {
     try {
+      // Gracefully limit lesson context to 25,000 characters to prevent payload and context overflow
+      const sanitizedLesson =
+        typeof lessonContent === "string" && lessonContent.length > 25000
+          ? lessonContent.slice(0, 25000)
+          : lessonContent;
+
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/api/generateQuizzes`,
         // "http://localhost:8081/api/generateQuizzes",
@@ -12,12 +18,13 @@ export const generateQuizzes = createAsyncThunk(
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ lessonContent }),
+          body: JSON.stringify({ lessonContent: sanitizedLesson }),
         }
       );
 
       if (!response.ok) {
-        throw new Error("Network response was not ok");
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.error || `Server error: ${response.status}`);
       }
 
       const reader = response.body.getReader();
