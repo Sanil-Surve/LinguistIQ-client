@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -11,29 +11,44 @@ import {
   Paper,
   CircularProgress,
   Alert,
-  Divider,
   Card,
   CardContent,
-  Avatar,
   Chip,
   Stack,
+  Tooltip,
+  IconButton,
+  InputAdornment,
+  Grid,
   useTheme,
   useMediaQuery,
 } from "@mui/material";
 import {
-  School as SchoolIcon,
   MenuBook as BookIcon,
   Quiz as QuizIcon,
-  Psychology as BrainIcon,
   TableChart as TableIcon,
   AutoGraph as ChartIcon,
   Lightbulb as TipIcon,
   Code as CodeIcon,
+  AutoAwesome as SparkleIcon,
+  ContentCopy as CopyIcon,
+  Check as CheckIcon,
+  RestartAlt as ResetIcon,
+  TimerOutlined as TimerIcon,
 } from "@mui/icons-material";
 import { generateLesson, resetLesson } from "../app/slices/lessonSlice";
 import { generateQuizzes, resetQuizzes } from "../app/slices/quizSlice";
 
-// Rules for generating structured lessons with tables, charts/diagrams, and rich markdown
+// Hoist static suggestion topics per vercel-react-best-practices (rendering-hoist-jsx)
+const SUGGESTED_TOPICS = [
+  "Quantum Computing Foundations",
+  "Spanish Subjunctive Mood",
+  "Distributed Systems & Raft Consensus",
+  "Machine Learning Gradient Descent",
+  "Cellular Respiration & Krebs Cycle",
+  "React Server Components & SSR",
+];
+
+// Hoist static rules for generating structured lessons with tables, charts, and rich markdown
 const LESSON_MARKDOWN_RULES = `
 Strict Markdown Formatting and Structural Rules:
 1. **Title & Hierarchy**:
@@ -74,7 +89,7 @@ const markdownComponents = {
       sx={{
         fontWeight: 800,
         color: "#0f172a",
-        fontSize: { xs: "1.6rem", sm: "2.1rem" },
+        fontSize: { xs: "1.6rem", sm: "2rem" },
         letterSpacing: "-0.025em",
         mt: 1.5,
         mb: 2.5,
@@ -92,15 +107,12 @@ const markdownComponents = {
       component="h2"
       sx={{
         fontWeight: 700,
-        color: "#1e3a8a",
-        fontSize: { xs: "1.3rem", sm: "1.5rem" },
+        color: "#3730a3",
+        fontSize: { xs: "1.25rem", sm: "1.45rem" },
         letterSpacing: "-0.015em",
         mt: 3.5,
         mb: 2,
         pb: 0.5,
-        display: "flex",
-        alignItems: "center",
-        gap: 1,
       }}
       {...props}
     >
@@ -114,7 +126,7 @@ const markdownComponents = {
       sx={{
         fontWeight: 600,
         color: "#1e293b",
-        fontSize: { xs: "1.1rem", sm: "1.25rem" },
+        fontSize: { xs: "1.05rem", sm: "1.2rem" },
         mt: 2.5,
         mb: 1.5,
       }}
@@ -129,7 +141,7 @@ const markdownComponents = {
       component="p"
       sx={{
         color: "#334155",
-        fontSize: { xs: "0.95rem", sm: "1.05rem" },
+        fontSize: { xs: "0.95rem", sm: "1.025rem" },
         lineHeight: 1.8,
         mb: 2,
       }}
@@ -144,9 +156,9 @@ const markdownComponents = {
         width: "100%",
         overflowX: "auto",
         my: 3,
-        borderRadius: 2,
+        borderRadius: 3,
         border: "1px solid #cbd5e1",
-        boxShadow: "0 2px 6px rgba(0, 0, 0, 0.05)",
+        boxShadow: "0 2px 8px rgba(15, 23, 42, 0.05)",
         backgroundColor: "#ffffff",
       }}
     >
@@ -156,7 +168,7 @@ const markdownComponents = {
           width: "100%",
           borderCollapse: "collapse",
           textAlign: "left",
-          minWidth: 520,
+          minWidth: 540,
         }}
         {...props}
       >
@@ -168,8 +180,8 @@ const markdownComponents = {
     <Box
       component="thead"
       sx={{
-        backgroundColor: "#f1f5f9",
-        borderBottom: "2px solid #94a3b8",
+        backgroundColor: "#f8fafc",
+        borderBottom: "2px solid #cbd5e1",
       }}
       {...props}
     >
@@ -201,7 +213,7 @@ const markdownComponents = {
       sx={{
         px: 2.5,
         py: 1.75,
-        fontSize: "0.875rem",
+        fontSize: "0.85rem",
         fontWeight: 700,
         color: "#0f172a",
         textTransform: "uppercase",
@@ -232,18 +244,18 @@ const markdownComponents = {
       elevation={0}
       component="blockquote"
       sx={{
-        borderLeft: "4px solid #2563eb",
-        background: "linear-gradient(90deg, #eff6ff 0%, #f8fafc 100%)",
-        py: 1.5,
+        borderLeft: "4px solid #4f46e5",
+        background: "linear-gradient(90deg, rgba(79, 70, 229, 0.05) 0%, rgba(248, 250, 252, 0.8) 100%)",
+        py: 1.75,
         px: 2.5,
         my: 2.5,
-        borderRadius: "0 8px 8px 0",
-        border: "1px solid #dbeafe",
+        borderRadius: "0 10px 10px 0",
+        border: "1px solid rgba(79, 70, 229, 0.15)",
         borderLeftWidth: 4,
-        borderLeftColor: "#2563eb",
+        borderLeftColor: "#4f46e5",
         "& p": {
           m: 0,
-          color: "#1e3a8a",
+          color: "#312e81",
           fontWeight: 500,
           lineHeight: 1.7,
           fontSize: "0.975rem",
@@ -260,12 +272,12 @@ const markdownComponents = {
       sx={{
         backgroundColor: "#0f172a",
         color: "#f8fafc",
-        borderRadius: 2,
+        borderRadius: 3,
         p: { xs: 2, sm: 2.5 },
         my: 2.5,
         overflowX: "auto",
         border: "1px solid #1e293b",
-        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+        boxShadow: "0 8px 16px -2px rgba(15, 23, 42, 0.2)",
         fontFamily:
           "'JetBrains Mono', 'Fira Code', 'SF Mono', Menlo, Monaco, Consolas, monospace",
         fontSize: { xs: "0.85rem", sm: "0.9rem" },
@@ -290,8 +302,8 @@ const markdownComponents = {
         <Box
           component="code"
           sx={{
-            backgroundColor: "rgba(37, 99, 235, 0.08)",
-            color: "#1d4ed8",
+            backgroundColor: "rgba(79, 70, 229, 0.08)",
+            color: "#4338ca",
             fontFamily:
               "'JetBrains Mono', 'Fira Code', 'SF Mono', Menlo, Monaco, Consolas, monospace",
             fontWeight: 600,
@@ -299,7 +311,7 @@ const markdownComponents = {
             px: 0.8,
             py: 0.25,
             borderRadius: 1,
-            border: "1px solid rgba(37, 99, 235, 0.2)",
+            border: "1px solid rgba(79, 70, 229, 0.18)",
           }}
           {...props}
         >
@@ -374,20 +386,31 @@ const markdownComponents = {
 const Home = () => {
   const dispatch = useDispatch();
   const [input, setInput] = useState("");
+  const [copiedLesson, setCopiedLesson] = useState(false);
+  const [copiedQuiz, setCopiedQuiz] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const lessonRef = useRef(null);
   const quizRef = useRef(null);
 
-  // Lesson state
+  // Redux state
   const lesson = useSelector((state) => state.lesson.lesson);
   const lessonStatus = useSelector((state) => state.lesson.status);
   const lessonError = useSelector((state) => state.lesson.error);
 
-  // Quiz state
   const quizzes = useSelector((state) => state.quiz.quizzes);
   const quizStatus = useSelector((state) => state.quiz.status);
   const quizError = useSelector((state) => state.quiz.error);
+
+  // Derive metrics during rendering per vercel-react-best-practices (rerender-derived-state-no-effect)
+  const lessonMetrics = useMemo(() => {
+    if (!lesson) return { wordCount: 0, readTimeMinutes: 1 };
+    const words = lesson.trim().split(/\s+/).filter(Boolean).length;
+    return {
+      wordCount: words,
+      readTimeMinutes: Math.max(1, Math.ceil(words / 200)),
+    };
+  }, [lesson]);
 
   useEffect(() => {
     if (lessonStatus === "streaming" && lessonRef.current) {
@@ -401,19 +424,42 @@ const Home = () => {
     }
   }, [quizStatus, quizzes]);
 
-  const handleGenerateLesson = () => {
-    if (input.trim()) {
+  const handleGenerateLesson = (customTopic) => {
+    const topicToUse = typeof customTopic === "string" ? customTopic : input;
+    if (topicToUse.trim()) {
       dispatch(resetLesson());
       dispatch(resetQuizzes());
-      const prompt = buildLessonPrompt(input.trim());
+      const prompt = buildLessonPrompt(topicToUse.trim());
       dispatch(generateLesson(prompt));
     }
+  };
+
+  const handleSelectSuggested = (topic) => {
+    setInput(topic);
+    handleGenerateLesson(topic);
   };
 
   const handleGenerateQuizzes = () => {
     if (lesson) {
       dispatch(resetQuizzes());
       dispatch(generateQuizzes(lesson));
+    }
+  };
+
+  const handleClearAll = () => {
+    setInput("");
+    dispatch(resetLesson());
+    dispatch(resetQuizzes());
+  };
+
+  const handleCopy = async (text, setCopiedState) => {
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedState(true);
+      setTimeout(() => setCopiedState(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy text:", err);
     }
   };
 
@@ -426,79 +472,148 @@ const Home = () => {
   return (
     <Box
       sx={{
-        minHeight: "100vh",
-        background: "linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)",
-        py: { xs: 3, sm: 4, md: 6 },
+        minHeight: "calc(100vh - 70px)",
+        background:
+          "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(79, 70, 229, 0.08), transparent 70%), radial-gradient(ellipse 60% 40% at 95% 30%, rgba(6, 182, 212, 0.06), transparent 70%)",
+        py: { xs: 4, sm: 6, md: 8 },
       }}
     >
       <Container maxWidth="lg">
-        {/* Header */}
+        {/* Hero Header */}
         <Box textAlign="center" mb={{ xs: 4, sm: 6 }}>
-          <Stack
-            direction="row"
-            alignItems="center"
-            justifyContent="center"
-            spacing={2}
-            mb={2}
+          <Chip
+            icon={<SparkleIcon sx={{ fontSize: "1rem !important", color: "#4f46e5" }} />}
+            label="AI Learning Studio"
+            size="small"
+            sx={{
+              mb: 2.5,
+              py: 1.6,
+              px: 1,
+              bgcolor: "rgba(79, 70, 229, 0.08)",
+              border: "1px solid rgba(79, 70, 229, 0.2)",
+              color: "#4f46e5",
+              fontWeight: 700,
+              fontSize: "0.8rem",
+            }}
+          />
+          <Typography
+            variant={isMobile ? "h4" : "h2"}
+            component="h1"
+            sx={{
+              fontWeight: 800,
+              color: "#0f172a",
+              letterSpacing: "-0.03em",
+              mb: 1.5,
+            }}
           >
-            <Avatar
-              sx={{
-                bgcolor: "primary.main",
-                width: { xs: 48, sm: 56 },
-                height: { xs: 48, sm: 56 },
+            What would you like to{" "}
+            <span
+              style={{
+                background: "linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
               }}
             >
-              <BrainIcon sx={{ fontSize: { xs: 24, sm: 28 } }} />
-            </Avatar>
-            <Typography
-              variant={isMobile ? "h3" : "h2"}
-              component="h1"
-              fontWeight="bold"
-              color="text.primary"
-            >
-              LinguistIQ
-            </Typography>
-          </Stack>
+              master today?
+            </span>
+          </Typography>
           <Typography
             variant={isMobile ? "body1" : "h6"}
-            color="text.secondary"
-            maxWidth="600px"
-            mx="auto"
+            sx={{
+              color: "text.secondary",
+              maxWidth: 640,
+              mx: "auto",
+              lineHeight: 1.6,
+              fontWeight: 400,
+            }}
           >
-            Generate personalized lessons and quizzes powered by AI
+            Enter any language, concept, technology, or topic to generate a
+            comprehensive curriculum with data tables, diagrams, and quizzes.
           </Typography>
         </Box>
 
-        {/* Input Section */}
+        {/* Input & Search Section */}
         <Paper
-          elevation={3}
+          elevation={0}
           sx={{
             p: { xs: 3, sm: 4 },
-            mb: { xs: 3, sm: 4 },
-            borderRadius: 2,
+            mb: { xs: 4, sm: 5 },
+            borderRadius: 4,
+            bgcolor: "#ffffff",
+            border: "1px solid rgba(226, 232, 240, 0.9)",
+            boxShadow:
+              "0 10px 25px -5px rgba(15, 23, 42, 0.05), 0 8px 10px -6px rgba(15, 23, 42, 0.02)",
           }}
         >
-          <Stack spacing={3}>
+          <Stack spacing={2.5}>
             <TextField
               fullWidth
               label="Enter a topic to learn about"
-              placeholder="e.g., Machine Learning, English Grammar, World History..."
+              placeholder="e.g., Quantum Computing, Spanish Subjunctive, Distributed Systems..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
               variant="outlined"
               size={isMobile ? "medium" : "large"}
               InputProps={{
-                sx: { fontSize: { xs: "1rem", sm: "1.1rem" } },
+                sx: {
+                  fontSize: { xs: "1rem", sm: "1.1rem" },
+                  borderRadius: 3,
+                },
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SparkleIcon sx={{ color: "primary.main", fontSize: 22 }} />
+                  </InputAdornment>
+                ),
               }}
             />
 
+            {/* Quick Inspiration Chips */}
+            <Box>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: "text.secondary",
+                  fontWeight: 600,
+                  display: "block",
+                  mb: 1,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.04em",
+                }}
+              >
+                Or choose a popular topic:
+              </Typography>
+              <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                {SUGGESTED_TOPICS.map((topic) => (
+                  <Chip
+                    key={topic}
+                    label={topic}
+                    size="small"
+                    onClick={() => handleSelectSuggested(topic)}
+                    sx={{
+                      cursor: "pointer",
+                      bgcolor: "grey.50",
+                      border: "1px solid #e2e8f0",
+                      fontWeight: 500,
+                      "&:hover": {
+                        bgcolor: "rgba(79, 70, 229, 0.08)",
+                        borderColor: "primary.light",
+                        color: "primary.main",
+                      },
+                      transition: "all 0.15s ease",
+                    }}
+                  />
+                ))}
+              </Stack>
+            </Box>
+
+            {/* Feature Pills */}
             <Stack
               direction="row"
               spacing={1}
               flexWrap="wrap"
               useFlexGap
-              sx={{ mt: 0.5 }}
+              sx={{ pt: 0.5 }}
             >
               <Chip
                 icon={<TableIcon fontSize="small" />}
@@ -534,7 +649,8 @@ const Home = () => {
               />
             </Stack>
 
-            <Box>
+            {/* Action Buttons */}
+            <Box sx={{ display: "flex", gap: 2, alignItems: "center", pt: 1 }}>
               <Button
                 variant="contained"
                 size="large"
@@ -545,61 +661,151 @@ const Home = () => {
                     <BookIcon />
                   )
                 }
-                onClick={handleGenerateLesson}
+                onClick={() => handleGenerateLesson()}
                 disabled={!input.trim() || lessonStatus === "loading"}
                 fullWidth={isMobile}
                 sx={{
-                  py: { xs: 1.5, sm: 2 },
-                  px: { xs: 3, sm: 4 },
-                  fontSize: { xs: "1rem", sm: "1.1rem" },
-                  fontWeight: 600,
+                  py: { xs: 1.5, sm: 1.8 },
+                  px: { xs: 3, sm: 4.5 },
+                  fontSize: { xs: "0.95rem", sm: "1.05rem" },
+                  fontWeight: 700,
+                  borderRadius: 3,
                   background:
-                    "linear-gradient(45deg, #2196f3 30%, #21cbf3 90%)",
-                  boxShadow: "0 3px 5px 2px rgba(33, 203, 243, .3)",
+                    "linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%)",
+                  boxShadow: "0 6px 20px -4px rgba(79, 70, 229, 0.4)",
                   "&:hover": {
                     background:
-                      "linear-gradient(45deg, #1976d2 30%, #1cb5e0 90%)",
+                      "linear-gradient(135deg, #4338ca 0%, #0891b2 100%)",
+                    boxShadow: "0 8px 24px -4px rgba(79, 70, 229, 0.5)",
                   },
                 }}
               >
                 {lessonStatus === "loading"
                   ? lessonStatus === "streaming"
-                    ? "Generating..."
-                    : "Loading..."
+                    ? "Generating Lesson in Real-Time..."
+                    : "Connecting to AI..."
                   : "Generate Lesson"}
               </Button>
 
-              {lessonError && (
-                <Alert severity="error" sx={{ mt: 2 }}>
-                  {lessonError}
-                </Alert>
-              )}
+              {lesson ? (
+                <Button
+                  variant="outlined"
+                  color="inherit"
+                  size="large"
+                  startIcon={<ResetIcon />}
+                  onClick={handleClearAll}
+                  sx={{
+                    borderColor: "divider",
+                    color: "text.secondary",
+                    borderRadius: 3,
+                    py: { xs: 1.5, sm: 1.8 },
+                    px: 3,
+                  }}
+                >
+                  Clear
+                </Button>
+              ) : null}
             </Box>
+
+            {lessonError ? (
+              <Alert severity="error" sx={{ mt: 2, borderRadius: 2 }}>
+                {lessonError}
+              </Alert>
+            ) : null}
           </Stack>
         </Paper>
 
-        {/* Lesson Display */}
-        {(lesson || lessonStatus === "loading") && (
+        {/* Lesson Display Card */}
+        {lesson || lessonStatus === "loading" ? (
           <Card
-            elevation={3}
+            elevation={0}
             sx={{
-              mb: { xs: 3, sm: 4 },
-              borderRadius: 2,
+              mb: { xs: 4, sm: 5 },
+              borderRadius: 4,
+              bgcolor: "#ffffff",
+              border: "1px solid rgba(226, 232, 240, 0.9)",
+              boxShadow:
+                "0 10px 30px -5px rgba(15, 23, 42, 0.05), 0 8px 10px -6px rgba(15, 23, 42, 0.02)",
             }}
           >
-            <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
-              <Stack direction="row" alignItems="center" spacing={2} mb={3}>
-                <Avatar sx={{ bgcolor: "primary.light" }}>
-                  <BookIcon />
-                </Avatar>
-                <Typography
-                  variant={isMobile ? "h5" : "h4"}
-                  component="h2"
-                  fontWeight="bold"
-                >
-                  Generated Lesson
-                </Typography>
-              </Stack>
+            <CardContent sx={{ p: { xs: 3, sm: 4.5 } }}>
+              {/* Toolbar */}
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                  gap: 2,
+                  mb: 3,
+                  pb: 2,
+                  borderBottom: "1px solid #f1f5f9",
+                }}
+              >
+                <Stack direction="row" alignItems="center" spacing={2}>
+                  <Box
+                    sx={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: 2.5,
+                      bgcolor: "rgba(79, 70, 229, 0.08)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "primary.main",
+                    }}
+                  >
+                    <BookIcon />
+                  </Box>
+                  <Box>
+                    <Typography
+                      variant={isMobile ? "h6" : "h5"}
+                      component="h2"
+                      fontWeight="800"
+                      color="#0f172a"
+                    >
+                      Structured Lesson
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      Comprehensive educational material formatted in rich GFM
+                    </Typography>
+                  </Box>
+                </Stack>
+
+                <Stack direction="row" alignItems="center" spacing={1.5}>
+                  {lessonMetrics.wordCount > 0 ? (
+                    <Chip
+                      icon={<TimerIcon fontSize="small" />}
+                      label={`~${lessonMetrics.readTimeMinutes} min read (${lessonMetrics.wordCount} words)`}
+                      size="small"
+                      sx={{ bgcolor: "grey.100", fontWeight: 600 }}
+                    />
+                  ) : null}
+
+                  {lesson ? (
+                    <Tooltip title={copiedLesson ? "Copied!" : "Copy Markdown"}>
+                      <IconButton
+                        onClick={() => handleCopy(lesson, setCopiedLesson)}
+                        size="small"
+                        sx={{
+                          border: "1px solid",
+                          borderColor: "divider",
+                          borderRadius: 2,
+                          color: copiedLesson ? "success.main" : "text.secondary",
+                        }}
+                      >
+                        {copiedLesson ? (
+                          <CheckIcon fontSize="small" />
+                        ) : (
+                          <CopyIcon fontSize="small" />
+                        )}
+                      </IconButton>
+                    </Tooltip>
+                  ) : null}
+                </Stack>
+              </Box>
+
+              {/* Lesson Markdown Container */}
               <Paper
                 variant="outlined"
                 sx={{
@@ -607,8 +813,8 @@ const Home = () => {
                   bgcolor: "#ffffff",
                   borderLeft: 4,
                   borderLeftColor: "primary.main",
-                  borderRadius: 2,
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                  borderRadius: 3,
+                  boxShadow: "0 2px 8px rgba(15, 23, 42, 0.03)",
                 }}
               >
                 <Box
@@ -624,22 +830,49 @@ const Home = () => {
                     {(lesson || "").replace(/undefined/g, "")}
                   </ReactMarkdown>
                 </Box>
-                {lessonStatus === "streaming" && (
-                  <Stack direction="row" alignItems="center" spacing={1} mt={3}>
-                    <CircularProgress size={16} />
+
+                {lessonStatus === "streaming" ? (
+                  <Stack direction="row" alignItems="center" spacing={1.5} mt={3}>
+                    <CircularProgress size={18} sx={{ color: "primary.main" }} />
                     <Chip
-                      label="AI is generating..."
+                      label="AI is generating live stream..."
                       size="small"
                       color="primary"
                       variant="outlined"
                     />
                   </Stack>
-                )}
+                ) : null}
               </Paper>
 
-              {/* Generate Quiz Button */}
-              <Box mt={4} pt={3}>
-                <Divider sx={{ mb: 3 }} />
+              {/* Generate Quiz Callout Banner */}
+              <Box
+                mt={4}
+                p={{ xs: 2.5, sm: 3 }}
+                sx={{
+                  borderRadius: 3,
+                  background:
+                    "linear-gradient(135deg, rgba(16, 185, 129, 0.06) 0%, rgba(6, 182, 212, 0.06) 100%)",
+                  border: "1px solid rgba(16, 185, 129, 0.2)",
+                  display: "flex",
+                  flexDirection: { xs: "column", sm: "row" },
+                  justifyContent: "space-between",
+                  alignItems: { xs: "stretch", sm: "center" },
+                  gap: 2.5,
+                }}
+              >
+                <Box>
+                  <Typography
+                    variant="subtitle1"
+                    fontWeight="700"
+                    color="#065f46"
+                  >
+                    Ready to test your knowledge?
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Generate an interactive 5-question multiple choice assessment
+                    customized to this lesson.
+                  </Typography>
+                </Box>
                 <Button
                   variant="contained"
                   size="large"
@@ -652,140 +885,263 @@ const Home = () => {
                   }
                   onClick={handleGenerateQuizzes}
                   disabled={!lesson || quizStatus === "loading"}
-                  fullWidth={isMobile}
                   sx={{
-                    py: { xs: 1.5, sm: 2 },
-                    px: { xs: 3, sm: 4 },
-                    fontSize: { xs: "1rem", sm: "1.1rem" },
-                    fontWeight: 600,
+                    py: 1.4,
+                    px: 3.5,
+                    whiteSpace: "nowrap",
+                    fontWeight: 700,
+                    borderRadius: 2.5,
                     background:
-                      "linear-gradient(45deg, #4caf50 30%, #81c784 90%)",
-                    boxShadow: "0 3px 5px 2px rgba(76, 175, 80, .3)",
+                      "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                    boxShadow: "0 4px 15px rgba(16, 185, 129, 0.35)",
                     "&:hover": {
                       background:
-                        "linear-gradient(45deg, #388e3c 30%, #66bb6a 90%)",
+                        "linear-gradient(135deg, #059669 0%, #047857 100%)",
                     },
                   }}
                 >
                   {quizStatus === "loading"
                     ? quizStatus === "streaming"
-                      ? "Generating..."
-                      : "Loading..."
+                      ? "Generating Assessment..."
+                      : "Connecting..."
                     : "Generate Quiz"}
                 </Button>
-
-                {quizError && (
-                  <Alert severity="error" sx={{ mt: 2 }}>
-                    {quizError}
-                  </Alert>
-                )}
               </Box>
+
+              {quizError ? (
+                <Alert severity="error" sx={{ mt: 2, borderRadius: 2 }}>
+                  {quizError}
+                </Alert>
+              ) : null}
             </CardContent>
           </Card>
-        )}
+        ) : null}
 
-        {/* Quiz Display */}
-        {(quizzes || quizStatus === "loading") && (
+        {/* Quiz Display Card */}
+        {quizzes || quizStatus === "loading" ? (
           <Card
-            elevation={3}
+            elevation={0}
             sx={{
-              borderRadius: 2,
+              mb: { xs: 4, sm: 5 },
+              borderRadius: 4,
+              bgcolor: "#ffffff",
+              border: "1px solid rgba(226, 232, 240, 0.9)",
+              boxShadow:
+                "0 10px 30px -5px rgba(15, 23, 42, 0.05), 0 8px 10px -6px rgba(15, 23, 42, 0.02)",
             }}
           >
-            <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
-              <Stack direction="row" alignItems="center" spacing={2} mb={3}>
-                <Avatar sx={{ bgcolor: "success.light" }}>
-                  <QuizIcon />
-                </Avatar>
-                <Typography
-                  variant={isMobile ? "h5" : "h4"}
-                  component="h2"
-                  fontWeight="bold"
-                >
-                  Generated Quiz
-                </Typography>
-              </Stack>
-
-              <Box>
-                <Paper
-                  variant="outlined"
-                  sx={{
-                    p: { xs: 2.5, sm: 3.5 },
-                    bgcolor: "#ffffff",
-                    borderLeft: 4,
-                    borderLeftColor: "success.main",
-                    borderRadius: 2,
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
-                  }}
-                >
+            <CardContent sx={{ p: { xs: 3, sm: 4.5 } }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                  gap: 2,
+                  mb: 3,
+                  pb: 2,
+                  borderBottom: "1px solid #f1f5f9",
+                }}
+              >
+                <Stack direction="row" alignItems="center" spacing={2}>
                   <Box
-                    ref={quizRef}
                     sx={{
-                      wordBreak: "break-word",
+                      width: 44,
+                      height: 44,
+                      borderRadius: 2.5,
+                      bgcolor: "rgba(16, 185, 129, 0.1)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "success.main",
                     }}
                   >
-                    <ReactMarkdown
-                      remarkPlugins={[remarkGfm]}
-                      components={markdownComponents}
-                    >
-                      {(quizzes || "").replace(/undefined/g, "")}
-                    </ReactMarkdown>
+                    <QuizIcon />
                   </Box>
-                  {quizStatus === "streaming" && (
-                    <Stack
-                      direction="row"
-                      alignItems="center"
-                      spacing={1}
-                      mt={3}
+                  <Box>
+                    <Typography
+                      variant={isMobile ? "h6" : "h5"}
+                      component="h2"
+                      fontWeight="800"
+                      color="#0f172a"
                     >
-                      <CircularProgress size={16} color="success" />
-                      <Chip
-                        label="AI is generating..."
-                        size="small"
-                        color="success"
-                        variant="outlined"
-                      />
-                    </Stack>
-                  )}
-                </Paper>
+                      Knowledge Assessment
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      5 multiple-choice questions to test retention
+                    </Typography>
+                  </Box>
+                </Stack>
+
+                {quizzes ? (
+                  <Tooltip title={copiedQuiz ? "Copied!" : "Copy Quiz"}>
+                    <IconButton
+                      onClick={() => handleCopy(quizzes, setCopiedQuiz)}
+                      size="small"
+                      sx={{
+                        border: "1px solid",
+                        borderColor: "divider",
+                        borderRadius: 2,
+                        color: copiedQuiz ? "success.main" : "text.secondary",
+                      }}
+                    >
+                      {copiedQuiz ? (
+                        <CheckIcon fontSize="small" />
+                      ) : (
+                        <CopyIcon fontSize="small" />
+                      )}
+                    </IconButton>
+                  </Tooltip>
+                ) : null}
               </Box>
+
+              <Paper
+                variant="outlined"
+                sx={{
+                  p: { xs: 2.5, sm: 3.5 },
+                  bgcolor: "#ffffff",
+                  borderLeft: 4,
+                  borderLeftColor: "success.main",
+                  borderRadius: 3,
+                  boxShadow: "0 2px 8px rgba(15, 23, 42, 0.03)",
+                }}
+              >
+                <Box
+                  ref={quizRef}
+                  sx={{
+                    wordBreak: "break-word",
+                  }}
+                >
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={markdownComponents}
+                  >
+                    {(quizzes || "").replace(/undefined/g, "")}
+                  </ReactMarkdown>
+                </Box>
+
+                {quizStatus === "streaming" ? (
+                  <Stack
+                    direction="row"
+                    alignItems="center"
+                    spacing={1.5}
+                    mt={3}
+                  >
+                    <CircularProgress size={18} color="success" />
+                    <Chip
+                      label="AI is streaming quiz questions..."
+                      size="small"
+                      color="success"
+                      variant="outlined"
+                    />
+                  </Stack>
+                ) : null}
+              </Paper>
             </CardContent>
           </Card>
-        )}
+        ) : null}
 
-        {/* Empty State */}
-        {!lesson && lessonStatus !== "loading" && (
-          <Box textAlign="center" py={{ xs: 6, sm: 8 }}>
-            <Avatar
+        {/* Empty State Showcase */}
+        {!lesson && lessonStatus !== "loading" ? (
+          <Box sx={{ mt: 4, mb: 6 }}>
+            <Typography
+              variant="subtitle2"
+              textAlign="center"
+              color="text.secondary"
               sx={{
-                width: { xs: 80, sm: 100 },
-                height: { xs: 80, sm: 100 },
-                bgcolor: "primary.light",
-                mx: "auto",
                 mb: 3,
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                fontWeight: 700,
               }}
             >
-              <SchoolIcon sx={{ fontSize: { xs: 40, sm: 50 } }} />
-            </Avatar>
-            <Typography
-              variant={isMobile ? "h5" : "h4"}
-              component="h3"
-              fontWeight="medium"
-              mb={2}
-            >
-              Ready to start learning?
+              How LinguistIQ Works
             </Typography>
-            <Typography
-              variant="body1"
-              color="text.secondary"
-              maxWidth="400px"
-              mx="auto"
-            >
-              Enter any topic above and let our AI generate a personalized
-              lesson and quiz for you.
-            </Typography>
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={4}>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 3,
+                    borderRadius: 3.5,
+                    bgcolor: "#ffffff",
+                    border: "1px solid #e2e8f0",
+                    height: "100%",
+                  }}
+                >
+                  <Typography
+                    variant="h5"
+                    fontWeight="800"
+                    sx={{ color: "primary.main", mb: 1 }}
+                  >
+                    01
+                  </Typography>
+                  <Typography variant="subtitle1" fontWeight="700" sx={{ mb: 0.5 }}>
+                    Enter Any Topic
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Type a topic or pick an inspiration pill to initiate instant AI
+                    curriculum generation.
+                  </Typography>
+                </Paper>
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 3,
+                    borderRadius: 3.5,
+                    bgcolor: "#ffffff",
+                    border: "1px solid #e2e8f0",
+                    height: "100%",
+                  }}
+                >
+                  <Typography
+                    variant="h5"
+                    fontWeight="800"
+                    sx={{ color: "secondary.main", mb: 1 }}
+                  >
+                    02
+                  </Typography>
+                  <Typography variant="subtitle1" fontWeight="700" sx={{ mb: 0.5 }}>
+                    Structured Generation
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Receive comprehensive lessons with GFM comparison tables,
+                    ASCII flowcharts, and pro-tips.
+                  </Typography>
+                </Paper>
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 3,
+                    borderRadius: 3.5,
+                    bgcolor: "#ffffff",
+                    border: "1px solid #e2e8f0",
+                    height: "100%",
+                  }}
+                >
+                  <Typography
+                    variant="h5"
+                    fontWeight="800"
+                    sx={{ color: "success.main", mb: 1 }}
+                  >
+                    03
+                  </Typography>
+                  <Typography variant="subtitle1" fontWeight="700" sx={{ mb: 0.5 }}>
+                    Validate & Retain
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Generate an interactive 5-question assessment directly from the
+                    lesson to verify your retention.
+                  </Typography>
+                </Paper>
+              </Grid>
+            </Grid>
           </Box>
-        )}
+        ) : null}
       </Container>
     </Box>
   );
